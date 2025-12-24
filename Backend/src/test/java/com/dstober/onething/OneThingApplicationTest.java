@@ -14,4 +14,5 @@ final class OneThingApplicationTest {
           assertNotNull(clazz);
         });
   }
+
 }

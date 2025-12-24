@@ -39,5 +39,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
-
+nul
 .env
+Docs/stuff.md

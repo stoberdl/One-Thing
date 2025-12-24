@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${SUPABASE_HOST}:5432/${SUPABASE_DB}
+    driver-class-name: org.postgresql.Driver
+    username: ${SUPABASE_USER}
+    password: ${SUPABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
