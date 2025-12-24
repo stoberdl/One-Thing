@@ -1,6 +1,7 @@
 package com.dstober.onething.controller;
 
 import com.dstober.onething.model.Task;
+import com.dstober.onething.service.RollService;
 import com.dstober.onething.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,11 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final RollService rollService;
 
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, RollService rollService) {
         this.taskService = taskService;
+        this.rollService = rollService;
     }
 
     @PostMapping
@@ -27,6 +30,11 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
+        return ResponseEntity.ok(task);
+    }
+    @GetMapping("/rng")
+    public ResponseEntity<Task> determineTaskForUser(@RequestParam Long userId){//todo: change this
+        Task task = rollService.determineTaskForUser(userId);
         return ResponseEntity.ok(task);
     }
 

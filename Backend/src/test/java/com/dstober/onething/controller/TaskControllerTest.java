@@ -3,6 +3,7 @@ package com.dstober.onething.controller;
 import com.dstober.onething.exception.ResourceNotFoundException;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.model.TimeBracket;
+import com.dstober.onething.service.RollService;
 import com.dstober.onething.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class TaskControllerTest {
 
     @MockBean
     private TaskService taskService;
+    @MockBean
+    private RollService rollService;
 
     @Test
     void shouldCreateTask() throws Exception {

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserId(Long userId);
+    Integer countByUserId(Long userId);//change
 }
