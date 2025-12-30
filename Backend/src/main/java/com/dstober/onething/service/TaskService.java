@@ -3,48 +3,55 @@ package com.dstober.onething.service;
 import com.dstober.onething.exception.ResourceNotFoundException;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.repository.TaskRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TaskService {
 
-    private final TaskRepository taskRepository;
+  private final TaskRepository taskRepository;
 
-    public TaskService(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
-    }
+  public TaskService(TaskRepository taskRepository) {
+    this.taskRepository = taskRepository;
+  }
 
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
-    }
+  public Task createTask(Task task) {
+    return taskRepository.save(task);
+  }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id)
+  public Task getTaskByIdAndUserId(Long id, Long userId) {
+    Task task =
+        taskRepository
+            .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+
+    if (!task.getUserId().equals(userId)) {
+      throw new ResourceNotFoundException("Task not found with id: " + id);
     }
 
-    public List<Task> getAllTasksByUserId(Long userId) {
-        return taskRepository.findByUserId(userId);
-    }
+    return task;
+  }
 
-    public Task updateTask(Long id, Task taskDetails) {
-        Task existingTask = getTaskById(id);
+  public List<Task> getAllTasksByUserId(Long userId) {
+    return taskRepository.findByUserId(userId);
+  }
 
-        existingTask.setName(taskDetails.getName());
-        existingTask.setCategoryId(taskDetails.getCategoryId());
-        existingTask.setTimeBracket(taskDetails.getTimeBracket());
-        existingTask.setPriority(taskDetails.getPriority());
-        existingTask.setLastCompleted(taskDetails.getLastCompleted());
-        existingTask.setPrevCompleted(taskDetails.getPrevCompleted());
-        existingTask.setParentId(taskDetails.getParentId());
+  public Task updateTask(Long id, Task taskDetails, Long userId) {
+    Task existingTask = getTaskByIdAndUserId(id, userId);
 
-        return taskRepository.save(existingTask);
-    }
+    existingTask.setName(taskDetails.getName());
+    existingTask.setCategoryId(taskDetails.getCategoryId());
+    existingTask.setTimeBracket(taskDetails.getTimeBracket());
+    existingTask.setPriority(taskDetails.getPriority());
+    existingTask.setLastCompleted(taskDetails.getLastCompleted());
+    existingTask.setPrevCompleted(taskDetails.getPrevCompleted());
+    existingTask.setParentId(taskDetails.getParentId());
 
-    public void deleteTask(Long id) {
-        Task task = getTaskById(id);
-        taskRepository.delete(task);
-    }
+    return taskRepository.save(existingTask);
+  }
+
+  public void deleteTask(Long id, Long userId) {
+    Task task = getTaskByIdAndUserId(id, userId);
+    taskRepository.delete(task);
+  }
 }
