@@ -1,5 +1,6 @@
 package com.dstober.onething.service;
 
+import com.dstober.onething.dto.TaskCreateRequest;
 import com.dstober.onething.exception.ResourceNotFoundException;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.repository.TaskRepository;
@@ -15,7 +16,15 @@ public class TaskService {
     this.taskRepository = taskRepository;
   }
 
-  public Task createTask(Task task) {
+  public Task createTask(TaskCreateRequest request, Long authenticatedUserId) {
+    Task task = new Task();
+    task.setName(request.getName());
+    task.setCategoryId(request.getCategoryId());
+    task.setTimeBracket(request.getTimeBracket());
+    task.setPriority(request.getPriority());
+    task.setParentId(request.getParentId());
+    task.setUserId(authenticatedUserId);
+
     return taskRepository.save(task);
   }
 

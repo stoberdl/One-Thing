@@ -1,11 +1,17 @@
 package com.dstober.onething.controller;
 
+import com.dstober.onething.dto.CategoryCreateRequest;
+import com.dstober.onething.dto.TaskCreateRequest;
+import com.dstober.onething.model.Category;
 import com.dstober.onething.model.Task;
+import com.dstober.onething.security.UserPrincipal;
+import com.dstober.onething.service.CategoryService;
 import com.dstober.onething.service.RollService;
 import com.dstober.onething.service.TaskService;
-import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,15 +20,28 @@ public class TaskController {
 
   private final TaskService taskService;
   private final RollService rollService;
+  private final CategoryService categoryService;
 
-  public TaskController(TaskService taskService, RollService rollService) {
+  public TaskController(
+      TaskService taskService, RollService rollService, CategoryService categoryService) {
     this.taskService = taskService;
     this.rollService = rollService;
+    this.categoryService = categoryService;
   }
 
   @PostMapping
-  public ResponseEntity<Task> createTask(@RequestBody Task task) {
-    Task created = taskService.createTask(task);
+  public ResponseEntity<Task> createTask(
+      @Valid @RequestBody TaskCreateRequest request, Authentication authentication) {
+    UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+    Task created = taskService.createTask(request, principal.getId());
+    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+  }
+
+  @PostMapping("/categories")
+  public ResponseEntity<Category> createCategory(
+      @Valid @RequestBody CategoryCreateRequest request, Authentication authentication) {
+    UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+    Category created = categoryService.createCategory(request, principal.getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
 
@@ -31,17 +50,18 @@ public class TaskController {
   //        Task task = taskService.getTaskByIdAndUserId(id);
   //        return ResponseEntity.ok(task);
   //    }
-  @GetMapping("/rng")
-  public ResponseEntity<Task> determineTaskForUser(@RequestParam Long userId) { // todo: change this
-    Task task = rollService.determineTaskForUser(userId);
-    return ResponseEntity.ok(task);
-  }
-
-  @GetMapping
-  public ResponseEntity<List<Task>> getTasksByUserId(@RequestParam Long userId) {
-    List<Task> tasks = taskService.getAllTasksByUserId(userId);
-    return ResponseEntity.ok(tasks);
-  }
+  //  @GetMapping("/rng")
+  //  public ResponseEntity<Task> determineTaskForUser(@RequestParam Long userId) { // todo: change
+  // this
+  //    Task task = rollService.determineTaskForUser(userId);
+  //    return ResponseEntity.ok(task);
+  //  }
+  //
+  //  @GetMapping
+  //  public ResponseEntity<List<Task>> getTasksByUserId(@RequestParam Long userId) {
+  //    List<Task> tasks = taskService.getAllTasksByUserId(userId);
+  //    return ResponseEntity.ok(tasks);
+  //  }
 
   //    @PutMapping("/{id}")
   //    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {

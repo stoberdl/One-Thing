@@ -1,0 +1,9 @@
+app:
+  jwt:
+    expiration: 86400000 # 24 hours in milliseconds (24 * 60 * 60 * 1000)
+
+spring:
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate

@@ -44,3 +44,4 @@ nul
 .env
 Docs/stuff.md
 Docs/FrontendSetupGuide/
+docker-compose.yml

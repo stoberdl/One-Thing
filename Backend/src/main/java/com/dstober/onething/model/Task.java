@@ -42,6 +42,8 @@ public class Task {
   @Column(name = "parent_id")
   private Long parentId;
 
+  public Task() {}
+
   @PrePersist
   protected void onCreate() {
     createdAt = Instant.now();
