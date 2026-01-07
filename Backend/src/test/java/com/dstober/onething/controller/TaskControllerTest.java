@@ -217,4 +217,196 @@ public class TaskControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(0));
   }
+
+  @Test
+  void shouldReturn400WhenTaskNameIsBlank() throws Exception {
+    String requestBody =
+        """
+        {
+            "name": "",
+            "categoryId": 1,
+            "timeBracket": "15-30",
+            "priority": 2
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  void shouldReturn400WhenCategoryIdIsNull() throws Exception {
+    String requestBody =
+        """
+        {
+            "name": "Test Task",
+            "timeBracket": "15-30",
+            "priority": 2
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldReturn400WhenPriorityTooLow() throws Exception {
+    String requestBody =
+        """
+        {
+            "name": "Test Task",
+            "categoryId": 1,
+            "timeBracket": "15-30",
+            "priority": 0
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  void shouldReturn400WhenPriorityTooHigh() throws Exception {
+    String requestBody =
+        """
+        {
+            "name": "Test Task",
+            "categoryId": 1,
+            "timeBracket": "15-30",
+            "priority": 4
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  void shouldReturn400WhenCategoryColorInvalid() throws Exception {
+    String requestBody =
+        """
+        {
+            "name": "Category",
+            "icon": "briefcase",
+            "color": "red"
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  void shouldReturn400WhenCategoryColorTooShort() throws Exception {
+    String requestBody =
+        """
+        {
+            "name": "Category",
+            "icon": "briefcase",
+            "color": "#FFF"
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  void shouldAcceptValidPriorityBoundary1() throws Exception {
+    Task savedTask = new Task();
+    savedTask.setId(1L);
+    savedTask.setName("Test");
+    savedTask.setCategoryId(1L);
+    savedTask.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
+    savedTask.setPriority(1);
+    savedTask.setUserId(1L);
+
+    when(taskService.createTask(any(TaskCreateRequest.class), eq(1L))).thenReturn(savedTask);
+
+    String requestBody =
+        """
+        {
+            "name": "Test",
+            "categoryId": 1,
+            "timeBracket": "15-30",
+            "priority": 1
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.priority").value(1));
+  }
+
+  @Test
+  void shouldAcceptValidPriorityBoundary3() throws Exception {
+    Task savedTask = new Task();
+    savedTask.setId(1L);
+    savedTask.setName("Test");
+    savedTask.setCategoryId(1L);
+    savedTask.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
+    savedTask.setPriority(3);
+    savedTask.setUserId(1L);
+
+    when(taskService.createTask(any(TaskCreateRequest.class), eq(1L))).thenReturn(savedTask);
+
+    String requestBody =
+        """
+        {
+            "name": "Test",
+            "categoryId": 1,
+            "timeBracket": "15-30",
+            "priority": 3
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+                .with(authentication(createAuthentication())))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.priority").value(3));
+  }
 }

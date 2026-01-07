@@ -3,6 +3,7 @@ package com.dstober.onething.service;
 import com.dstober.onething.exception.ResourceNotFoundException;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.repository.TaskRepository;
+import java.util.List;
 import java.util.Random;
 import org.springframework.stereotype.Service;
 
@@ -10,19 +11,27 @@ import org.springframework.stereotype.Service;
 public class RollService {
 
   private final TaskRepository taskRepository;
+  private final Random random;
 
   public RollService(TaskRepository taskRepository) {
     this.taskRepository = taskRepository;
+    this.random = new Random();
+  }
+
+  // Constructor for testing with injected Random
+  RollService(TaskRepository taskRepository, Random random) {
+    this.taskRepository = taskRepository;
+    this.random = random;
   }
 
   public Task determineTaskForUser(Long userId) {
-    Random rand = new Random();
-    Long randomTaskId = rand.nextLong(taskRepository.countByUserId(userId)) + 1;
-    // todo:change to list of task ids that user owns, randomly choose one in list
-    // todo: change to Int's?? not gonna need longs
-    return taskRepository
-        .findById(randomTaskId)
-        .orElseThrow(
-            () -> new ResourceNotFoundException("Random task not found with id: " + randomTaskId));
+    List<Task> tasks = taskRepository.findByUserId(userId);
+
+    if (tasks.isEmpty()) {
+      throw new ResourceNotFoundException("No tasks available for user");
+    }
+
+    int randomIndex = random.nextInt(tasks.size());
+    return tasks.get(randomIndex);
   }
 }

@@ -38,7 +38,11 @@ public class JwtTokenProvider {
     Claims claims =
         Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
 
-    return claims.get("userId", Long.class);
+    Long userId = claims.get("userId", Long.class);
+    if (userId == null) {
+      throw new JwtException("Token missing required userId claim");
+    }
+    return userId;
   }
 
   public String getEmailFromToken(String token) {
