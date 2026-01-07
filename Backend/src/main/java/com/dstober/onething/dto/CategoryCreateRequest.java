@@ -1,6 +1,7 @@
 package com.dstober.onething.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public class CategoryCreateRequest {
 
@@ -10,7 +11,8 @@ public class CategoryCreateRequest {
   @NotBlank(message = "Icon is required")
   private String icon;
 
-  @NotBlank(message = "Category color is required") // todo:verify colors
+  @NotBlank(message = "Category color is required")
+  @Pattern(regexp = "^#[0-9A-Fa-f]{6}$", message = "Invalid hex color format. Use #RRGGBB format")
   private String color;
 
   public CategoryCreateRequest() {}

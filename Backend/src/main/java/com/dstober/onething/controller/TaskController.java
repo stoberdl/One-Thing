@@ -9,6 +9,7 @@ import com.dstober.onething.service.CategoryService;
 import com.dstober.onething.service.RollService;
 import com.dstober.onething.service.TaskService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -45,11 +46,12 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
 
-  //    @GetMapping("/{id}")
-  //    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-  //        Task task = taskService.getTaskByIdAndUserId(id);
-  //        return ResponseEntity.ok(task);
-  //    }
+  @GetMapping
+  public ResponseEntity<List<Task>> getAllTasksForUser(Authentication authentication) {
+    UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+    List<Task> tasks = taskService.getAllTasksByUserId(principal.getId());
+    return ResponseEntity.ok(tasks);
+  }
   //  @GetMapping("/rng")
   //  public ResponseEntity<Task> determineTaskForUser(@RequestParam Long userId) { // todo: change
   // this
@@ -57,11 +59,6 @@ public class TaskController {
   //    return ResponseEntity.ok(task);
   //  }
   //
-  //  @GetMapping
-  //  public ResponseEntity<List<Task>> getTasksByUserId(@RequestParam Long userId) {
-  //    List<Task> tasks = taskService.getAllTasksByUserId(userId);
-  //    return ResponseEntity.ok(tasks);
-  //  }
 
   //    @PutMapping("/{id}")
   //    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {

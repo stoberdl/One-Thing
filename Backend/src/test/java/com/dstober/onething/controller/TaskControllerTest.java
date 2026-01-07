@@ -18,6 +18,8 @@ import com.dstober.onething.security.UserPrincipal;
 import com.dstober.onething.service.CategoryService;
 import com.dstober.onething.service.RollService;
 import com.dstober.onething.service.TaskService;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -174,5 +176,45 @@ public class TaskControllerTest {
         .andExpect(jsonPath("$.name").value("Personal"))
         .andExpect(jsonPath("$.icon").value("home"))
         .andExpect(jsonPath("$.color").value("#3498DB"));
+  }
+
+  @Test
+  void shouldGetAllTasksForUser() throws Exception {
+    Task task1 = new Task();
+    task1.setId(1L);
+    task1.setName("Task 1");
+    task1.setCategoryId(1L);
+    task1.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
+    task1.setPriority(1);
+    task1.setUserId(1L);
+
+    Task task2 = new Task();
+    task2.setId(2L);
+    task2.setName("Task 2");
+    task2.setCategoryId(2L);
+    task2.setTimeBracket(TimeBracket.UNDER_FIFTEEN);
+    task2.setPriority(2);
+    task2.setUserId(1L);
+
+    when(taskService.getAllTasksByUserId(1L)).thenReturn(List.of(task1, task2));
+
+    mockMvc
+        .perform(get("/api/tasks").with(authentication(createAuthentication())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(2))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].name").value("Task 1"))
+        .andExpect(jsonPath("$[1].id").value(2))
+        .andExpect(jsonPath("$[1].name").value("Task 2"));
+  }
+
+  @Test
+  void shouldReturnEmptyListWhenNoTasks() throws Exception {
+    when(taskService.getAllTasksByUserId(1L)).thenReturn(Collections.emptyList());
+
+    mockMvc
+        .perform(get("/api/tasks").with(authentication(createAuthentication())))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(0));
   }
 }
