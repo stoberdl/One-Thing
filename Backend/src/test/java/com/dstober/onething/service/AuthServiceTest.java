@@ -28,135 +28,139 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+  @Mock private UserRepository userRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+  @Mock private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private JwtTokenProvider tokenProvider;
+  @Mock private JwtTokenProvider tokenProvider;
 
-    @Mock
-    private AuthenticationManager authenticationManager;
+  @Mock private AuthenticationManager authenticationManager;
 
-    @InjectMocks
-    private AuthService authService;
+  @Mock private PriorityCalculationService priorityCalculationService;
 
-    @Test
-    void register_Success() {
-        RegisterRequest request = TestDataFactory.createRegisterRequest();
-        User savedUser = TestDataFactory.createUser();
-        String token = "jwt.token.here";
+  @InjectMocks private AuthService authService;
 
-        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(request.getPassword())).thenReturn(TestDataFactory.DEFAULT_ENCODED_PASSWORD);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(tokenProvider.generateToken(savedUser.getId(), savedUser.getEmail())).thenReturn(token);
+  @Test
+  void register_Success() {
+    RegisterRequest request = TestDataFactory.createRegisterRequest();
+    User savedUser = TestDataFactory.createUser();
+    String token = "jwt.token.here";
 
-        AuthResponse result = authService.register(request);
+    when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+    when(passwordEncoder.encode(request.getPassword()))
+        .thenReturn(TestDataFactory.DEFAULT_ENCODED_PASSWORD);
+    when(userRepository.save(any(User.class))).thenReturn(savedUser);
+    when(tokenProvider.generateToken(savedUser.getId(), savedUser.getEmail())).thenReturn(token);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getToken()).isEqualTo(token);
-        assertThat(result.getUserId()).isEqualTo(savedUser.getId());
-        assertThat(result.getEmail()).isEqualTo(savedUser.getEmail());
-        assertThat(result.getName()).isEqualTo(savedUser.getName());
-    }
+    AuthResponse result = authService.register(request);
 
-    @Test
-    void register_DuplicateEmail() {
-        RegisterRequest request = TestDataFactory.createRegisterRequest();
+    assertThat(result).isNotNull();
+    assertThat(result.getToken()).isEqualTo(token);
+    assertThat(result.getUserId()).isEqualTo(savedUser.getId());
+    assertThat(result.getEmail()).isEqualTo(savedUser.getEmail());
+    assertThat(result.getName()).isEqualTo(savedUser.getName());
+  }
 
-        when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
+  @Test
+  void register_DuplicateEmail() {
+    RegisterRequest request = TestDataFactory.createRegisterRequest();
 
-        assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Email already in use");
+    when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
-        verify(userRepository, never()).save(any(User.class));
-    }
+    assertThatThrownBy(() -> authService.register(request))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Email already in use");
 
-    @Test
-    void register_PasswordEncoded() {
-        RegisterRequest request = TestDataFactory.createRegisterRequest();
-        User savedUser = TestDataFactory.createUser();
-        String encodedPassword = "$2a$10$newEncodedPassword";
+    verify(userRepository, never()).save(any(User.class));
+  }
 
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(passwordEncoder.encode(request.getPassword())).thenReturn(encodedPassword);
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(1L);
-            return user;
-        });
-        when(tokenProvider.generateToken(anyLong(), anyString())).thenReturn("token");
+  @Test
+  void register_PasswordEncoded() {
+    RegisterRequest request = TestDataFactory.createRegisterRequest();
+    User savedUser = TestDataFactory.createUser();
+    String encodedPassword = "$2a$10$newEncodedPassword";
 
-        authService.register(request);
+    when(userRepository.existsByEmail(anyString())).thenReturn(false);
+    when(passwordEncoder.encode(request.getPassword())).thenReturn(encodedPassword);
+    when(userRepository.save(any(User.class)))
+        .thenAnswer(
+            invocation -> {
+              User user = invocation.getArgument(0);
+              user.setId(1L);
+              return user;
+            });
+    when(tokenProvider.generateToken(anyLong(), anyString())).thenReturn("token");
 
-        verify(passwordEncoder).encode(request.getPassword());
-        verify(userRepository).save(argThat(user -> user.getPassword().equals(encodedPassword)));
-    }
+    authService.register(request);
 
-    @Test
-    void register_TokenGenerated() {
-        RegisterRequest request = TestDataFactory.createRegisterRequest();
-        User savedUser = TestDataFactory.createUser();
-        String expectedToken = "generated.jwt.token";
+    verify(passwordEncoder).encode(request.getPassword());
+    verify(userRepository).save(argThat(user -> user.getPassword().equals(encodedPassword)));
+  }
 
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn(TestDataFactory.DEFAULT_ENCODED_PASSWORD);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(tokenProvider.generateToken(savedUser.getId(), savedUser.getEmail())).thenReturn(expectedToken);
+  @Test
+  void register_TokenGenerated() {
+    RegisterRequest request = TestDataFactory.createRegisterRequest();
+    User savedUser = TestDataFactory.createUser();
+    String expectedToken = "generated.jwt.token";
 
-        AuthResponse result = authService.register(request);
+    when(userRepository.existsByEmail(anyString())).thenReturn(false);
+    when(passwordEncoder.encode(anyString())).thenReturn(TestDataFactory.DEFAULT_ENCODED_PASSWORD);
+    when(userRepository.save(any(User.class))).thenReturn(savedUser);
+    when(tokenProvider.generateToken(savedUser.getId(), savedUser.getEmail()))
+        .thenReturn(expectedToken);
 
-        assertThat(result.getToken()).isEqualTo(expectedToken);
-        verify(tokenProvider).generateToken(savedUser.getId(), savedUser.getEmail());
-    }
+    AuthResponse result = authService.register(request);
 
-    @Test
-    void login_Success() {
-        LoginRequest request = TestDataFactory.createLoginRequest();
-        User user = TestDataFactory.createUser();
-        String token = "jwt.login.token";
-        Authentication authentication = mock(Authentication.class);
+    assertThat(result.getToken()).isEqualTo(expectedToken);
+    verify(tokenProvider).generateToken(savedUser.getId(), savedUser.getEmail());
+  }
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(authentication);
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
-        when(tokenProvider.generateToken(user.getId(), user.getEmail())).thenReturn(token);
+  @Test
+  void login_Success() {
+    LoginRequest request = TestDataFactory.createLoginRequest();
+    User user = TestDataFactory.createUser();
+    String token = "jwt.login.token";
+    Authentication authentication = mock(Authentication.class);
 
-        AuthResponse result = authService.login(request);
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenReturn(authentication);
+    when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
+    when(tokenProvider.generateToken(user.getId(), user.getEmail())).thenReturn(token);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getToken()).isEqualTo(token);
-        assertThat(result.getUserId()).isEqualTo(user.getId());
-        assertThat(result.getEmail()).isEqualTo(user.getEmail());
-        assertThat(result.getName()).isEqualTo(user.getName());
-    }
+    AuthResponse result = authService.login(request);
 
-    @Test
-    void login_InvalidCredentials() {
-        LoginRequest request = TestDataFactory.createLoginRequest();
+    assertThat(result).isNotNull();
+    assertThat(result.getToken()).isEqualTo(token);
+    assertThat(result.getUserId()).isEqualTo(user.getId());
+    assertThat(result.getEmail()).isEqualTo(user.getEmail());
+    assertThat(result.getName()).isEqualTo(user.getName());
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Invalid credentials"));
+    // Verify priority recalculation is called on login
+    verify(priorityCalculationService).recalculatePrioritiesForUser(user.getId());
+  }
 
-        assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(BadCredentialsException.class);
-    }
+  @Test
+  void login_InvalidCredentials() {
+    LoginRequest request = TestDataFactory.createLoginRequest();
 
-    @Test
-    void login_UserNotFoundAfterAuth() {
-        LoginRequest request = TestDataFactory.createLoginRequest();
-        Authentication authentication = mock(Authentication.class);
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenThrow(new BadCredentialsException("Invalid credentials"));
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(authentication);
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
+    assertThatThrownBy(() -> authService.login(request))
+        .isInstanceOf(BadCredentialsException.class);
+  }
 
-        assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("User not found");
-    }
+  @Test
+  void login_UserNotFoundAfterAuth() {
+    LoginRequest request = TestDataFactory.createLoginRequest();
+    Authentication authentication = mock(Authentication.class);
+
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenReturn(authentication);
+    when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> authService.login(request))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("User not found");
+  }
 }

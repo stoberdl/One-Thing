@@ -19,63 +19,64 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 
-    @Mock
-    private CategoryRepository categoryRepository;
+  @Mock private CategoryRepository categoryRepository;
 
-    private CategoryService categoryService;
+  private CategoryService categoryService;
 
-    @BeforeEach
-    void setUp() {
-        categoryService = new CategoryService(categoryRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    categoryService = new CategoryService(categoryRepository);
+  }
 
-    @Test
-    void createCategory_Success() {
-        Long userId = 1L;
-        CategoryCreateRequest request = TestDataFactory.createCategoryCreateRequest();
-        Category savedCategory = TestDataFactory.createCategory(userId);
+  @Test
+  void createCategory_Success() {
+    Long userId = 1L;
+    CategoryCreateRequest request = TestDataFactory.createCategoryCreateRequest();
+    Category savedCategory = TestDataFactory.createCategory(userId);
 
-        when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
+    when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
 
-        Category result = categoryService.createCategory(request, userId);
+    Category result = categoryService.createCategory(request, userId);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(TestDataFactory.DEFAULT_CATEGORY_NAME);
-        assertThat(result.getIcon()).isEqualTo(TestDataFactory.DEFAULT_ICON);
-        assertThat(result.getColor()).isEqualTo(TestDataFactory.DEFAULT_COLOR);
-        assertThat(result.getUserId()).isEqualTo(userId);
-    }
+    assertThat(result).isNotNull();
+    assertThat(result.getName()).isEqualTo(TestDataFactory.DEFAULT_CATEGORY_NAME);
+    assertThat(result.getIcon()).isEqualTo(TestDataFactory.DEFAULT_ICON);
+    assertThat(result.getColor()).isEqualTo(TestDataFactory.DEFAULT_COLOR);
+    assertThat(result.getUserId()).isEqualTo(userId);
+  }
 
-    @Test
-    void createCategory_SetsCorrectUserId() {
-        Long userId = 5L;
-        CategoryCreateRequest request = TestDataFactory.createCategoryCreateRequest("Work", "briefcase", "#3498DB");
-        Category savedCategory = TestDataFactory.createCategory("Work", "briefcase", "#3498DB", userId);
+  @Test
+  void createCategory_SetsCorrectUserId() {
+    Long userId = 5L;
+    CategoryCreateRequest request =
+        TestDataFactory.createCategoryCreateRequest("Work", "briefcase", "#3498DB");
+    Category savedCategory = TestDataFactory.createCategory("Work", "briefcase", "#3498DB", userId);
 
-        when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
+    when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
 
-        Category result = categoryService.createCategory(request, userId);
+    Category result = categoryService.createCategory(request, userId);
 
-        ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
-        verify(categoryRepository).save(categoryCaptor.capture());
+    ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
+    verify(categoryRepository).save(categoryCaptor.capture());
 
-        Category capturedCategory = categoryCaptor.getValue();
-        assertThat(capturedCategory.getUserId()).isEqualTo(userId);
-        assertThat(capturedCategory.getName()).isEqualTo("Work");
-        assertThat(capturedCategory.getIcon()).isEqualTo("briefcase");
-        assertThat(capturedCategory.getColor()).isEqualTo("#3498DB");
-    }
+    Category capturedCategory = categoryCaptor.getValue();
+    assertThat(capturedCategory.getUserId()).isEqualTo(userId);
+    assertThat(capturedCategory.getName()).isEqualTo("Work");
+    assertThat(capturedCategory.getIcon()).isEqualTo("briefcase");
+    assertThat(capturedCategory.getColor()).isEqualTo("#3498DB");
+  }
 
-    @Test
-    void createCategory_WithDifferentColors() {
-        Long userId = 1L;
-        CategoryCreateRequest request = TestDataFactory.createCategoryCreateRequest("Personal", "home", "#FF0000");
-        Category savedCategory = TestDataFactory.createCategory("Personal", "home", "#FF0000", userId);
+  @Test
+  void createCategory_WithDifferentColors() {
+    Long userId = 1L;
+    CategoryCreateRequest request =
+        TestDataFactory.createCategoryCreateRequest("Personal", "home", "#FF0000");
+    Category savedCategory = TestDataFactory.createCategory("Personal", "home", "#FF0000", userId);
 
-        when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
+    when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
 
-        Category result = categoryService.createCategory(request, userId);
+    Category result = categoryService.createCategory(request, userId);
 
-        assertThat(result.getColor()).isEqualTo("#FF0000");
-    }
+    assertThat(result.getColor()).isEqualTo("#FF0000");
+  }
 }

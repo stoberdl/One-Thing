@@ -24,6 +24,8 @@ public class AuthService {
 
   @Autowired private AuthenticationManager authenticationManager;
 
+  @Autowired private PriorityCalculationService priorityCalculationService;
+
   public AuthResponse register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.getEmail())) {
       throw new RuntimeException("Email already in use");
@@ -49,6 +51,9 @@ public class AuthService {
         userRepository
             .findByEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // Recalculate task priorities based on frequency and last completed
+    priorityCalculationService.recalculatePrioritiesForUser(user.getId());
 
     String token = tokenProvider.generateToken(user.getId(), user.getEmail());
 

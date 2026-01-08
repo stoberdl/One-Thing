@@ -1,6 +1,7 @@
 package com.dstober.onething.controller;
 
 import com.dstober.onething.dto.CategoryCreateRequest;
+import com.dstober.onething.dto.RollRequest;
 import com.dstober.onething.dto.TaskCreateRequest;
 import com.dstober.onething.model.Category;
 import com.dstober.onething.model.Task;
@@ -52,13 +53,15 @@ public class TaskController {
     List<Task> tasks = taskService.getAllTasksByUserId(principal.getId());
     return ResponseEntity.ok(tasks);
   }
-  //  @GetMapping("/rng")
-  //  public ResponseEntity<Task> determineTaskForUser(@RequestParam Long userId) { // todo: change
-  // this
-  //    Task task = rollService.determineTaskForUser(userId);
-  //    return ResponseEntity.ok(task);
-  //  }
-  //
+
+  // todo:auth at top keyword?
+  @GetMapping("/roll")
+  public ResponseEntity<Task> determineTaskForUser(
+      Authentication authentication, @Valid RollRequest rollRequest) {
+    UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+    Task task = rollService.determineTaskForUser(principal.getId(), rollRequest);
+    return ResponseEntity.ok(task);
+  }
 
   //    @PutMapping("/{id}")
   //    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {

@@ -20,64 +20,62 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+  @Mock private UserRepository userRepository;
 
-    @InjectMocks
-    private UserService userService;
+  @InjectMocks private UserService userService;
 
-    @Test
-    void loadUserByUsername_Found() {
-        String email = "test@example.com";
-        User user = TestDataFactory.createUser();
+  @Test
+  void loadUserByUsername_Found() {
+    String email = "test@example.com";
+    User user = TestDataFactory.createUser();
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        UserDetails result = userService.loadUserByUsername(email);
+    UserDetails result = userService.loadUserByUsername(email);
 
-        assertThat(result).isNotNull();
-        assertThat(result).isInstanceOf(UserPrincipal.class);
-        assertThat(result.getUsername()).isEqualTo(email);
+    assertThat(result).isNotNull();
+    assertThat(result).isInstanceOf(UserPrincipal.class);
+    assertThat(result.getUsername()).isEqualTo(email);
 
-        UserPrincipal principal = (UserPrincipal) result;
-        assertThat(principal.getId()).isEqualTo(TestDataFactory.DEFAULT_USER_ID);
-        assertThat(principal.getEmail()).isEqualTo(email);
-        assertThat(principal.getName()).isEqualTo(TestDataFactory.DEFAULT_NAME);
-    }
+    UserPrincipal principal = (UserPrincipal) result;
+    assertThat(principal.getId()).isEqualTo(TestDataFactory.DEFAULT_USER_ID);
+    assertThat(principal.getEmail()).isEqualTo(email);
+    assertThat(principal.getName()).isEqualTo(TestDataFactory.DEFAULT_NAME);
+  }
 
-    @Test
-    void loadUserByUsername_NotFound() {
-        String email = "nonexistent@example.com";
+  @Test
+  void loadUserByUsername_NotFound() {
+    String email = "nonexistent@example.com";
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+    when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.loadUserByUsername(email))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining("User not found with email: " + email);
-    }
+    assertThatThrownBy(() -> userService.loadUserByUsername(email))
+        .isInstanceOf(UsernameNotFoundException.class)
+        .hasMessageContaining("User not found with email: " + email);
+  }
 
-    @Test
-    void getUserById_Found() {
-        Long userId = 1L;
-        User user = TestDataFactory.createUser();
+  @Test
+  void getUserById_Found() {
+    Long userId = 1L;
+    User user = TestDataFactory.createUser();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        User result = userService.getUserById(userId);
+    User result = userService.getUserById(userId);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(userId);
-        assertThat(result.getEmail()).isEqualTo(TestDataFactory.DEFAULT_EMAIL);
-    }
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(userId);
+    assertThat(result.getEmail()).isEqualTo(TestDataFactory.DEFAULT_EMAIL);
+  }
 
-    @Test
-    void getUserById_NotFound() {
-        Long userId = 999L;
+  @Test
+  void getUserById_NotFound() {
+    Long userId = 999L;
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+    when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getUserById(userId))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found with id: " + userId);
-    }
+    assertThatThrownBy(() -> userService.getUserById(userId))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("User not found with id: " + userId);
+  }
 }

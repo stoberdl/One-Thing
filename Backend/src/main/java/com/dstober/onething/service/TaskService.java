@@ -21,7 +21,7 @@ public class TaskService {
     task.setName(request.getName());
     task.setCategoryId(request.getCategoryId());
     task.setTimeBracket(request.getTimeBracket());
-    task.setPriority(request.getPriority());
+    task.setFrequency(request.getFrequency());
     task.setParentId(request.getParentId());
     task.setUserId(authenticatedUserId);
 
@@ -51,10 +51,11 @@ public class TaskService {
     existingTask.setName(taskDetails.getName());
     existingTask.setCategoryId(taskDetails.getCategoryId());
     existingTask.setTimeBracket(taskDetails.getTimeBracket());
-    existingTask.setPriority(taskDetails.getPriority());
+    existingTask.setFrequency(taskDetails.getFrequency());
     existingTask.setLastCompleted(taskDetails.getLastCompleted());
     existingTask.setPrevCompleted(taskDetails.getPrevCompleted());
     existingTask.setParentId(taskDetails.getParentId());
+    // priority is not updated directly - it's recalculated on login
 
     return taskRepository.save(existingTask);
   }

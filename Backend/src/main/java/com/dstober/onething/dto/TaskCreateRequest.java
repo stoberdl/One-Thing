@@ -1,8 +1,7 @@
 package com.dstober.onething.dto;
 
+import com.dstober.onething.model.Frequency;
 import com.dstober.onething.model.TimeBracket;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -17,21 +16,19 @@ public class TaskCreateRequest {
   @NotNull(message = "Time bracket is required")
   private TimeBracket timeBracket;
 
-  @NotNull(message = "Priority is required")
-  @Min(value = 1, message = "Priority must be at least 1")
-  @Max(value = 3, message = "Priority must be at most 3")
-  private Integer priority;
+  @NotNull(message = "Frequency is required")
+  private Frequency frequency;
 
   private Long parentId;
 
   public TaskCreateRequest() {}
 
   public TaskCreateRequest(
-      String name, Long categoryId, TimeBracket timeBracket, Integer priority, Long parentId) {
+      String name, Long categoryId, TimeBracket timeBracket, Frequency frequency, Long parentId) {
     this.name = name;
     this.categoryId = categoryId;
     this.timeBracket = timeBracket;
-    this.priority = priority;
+    this.frequency = frequency;
     this.parentId = parentId;
   }
 
@@ -59,12 +56,12 @@ public class TaskCreateRequest {
     this.timeBracket = timeBracket;
   }
 
-  public Integer getPriority() {
-    return priority;
+  public Frequency getFrequency() {
+    return frequency;
   }
 
-  public void setPriority(Integer priority) {
-    this.priority = priority;
+  public void setFrequency(Frequency frequency) {
+    this.frequency = frequency;
   }
 
   public Long getParentId() {

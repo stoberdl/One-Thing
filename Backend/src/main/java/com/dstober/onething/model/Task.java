@@ -25,7 +25,12 @@ public class Task {
   private TimeBracket timeBracket;
 
   @Column(nullable = false)
-  private Integer priority = 2;
+  private Integer priority = 0;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  private Frequency frequency;
 
   @Column(name = "user_id", nullable = false)
   private Long userId;
@@ -87,6 +92,14 @@ public class Task {
 
   public void setPriority(Integer priority) {
     this.priority = priority;
+  }
+
+  public Frequency getFrequency() {
+    return frequency;
+  }
+
+  public void setFrequency(Frequency frequency) {
+    this.frequency = frequency;
   }
 
   public Long getUserId() {

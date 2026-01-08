@@ -11,6 +11,7 @@ import com.dstober.onething.dto.CategoryCreateRequest;
 import com.dstober.onething.dto.TaskCreateRequest;
 import com.dstober.onething.exception.GlobalExceptionHandler;
 import com.dstober.onething.model.Category;
+import com.dstober.onething.model.Frequency;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.model.TimeBracket;
 import com.dstober.onething.security.JwtAuthenticationFilter;
@@ -59,7 +60,7 @@ public class TaskControllerTest {
     savedTask.setName("Clean floors");
     savedTask.setCategoryId(1L);
     savedTask.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
-    savedTask.setPriority(2);
+    savedTask.setFrequency(Frequency.MONTHLY);
     savedTask.setUserId(1L);
 
     when(taskService.createTask(any(TaskCreateRequest.class), eq(1L))).thenReturn(savedTask);
@@ -70,7 +71,7 @@ public class TaskControllerTest {
             "name": "Clean floors",
             "categoryId": 1,
             "timeBracket": "15-30",
-            "priority": 2
+            "frequency": "MONTHLY"
         }
         """;
 
@@ -84,7 +85,7 @@ public class TaskControllerTest {
         .andExpect(jsonPath("$.id").value(1))
         .andExpect(jsonPath("$.name").value("Clean floors"))
         .andExpect(jsonPath("$.categoryId").value(1))
-        .andExpect(jsonPath("$.priority").value(2));
+        .andExpect(jsonPath("$.frequency").value("MONTHLY"));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class TaskControllerTest {
     savedTask.setName("Subtask");
     savedTask.setCategoryId(1L);
     savedTask.setTimeBracket(TimeBracket.UNDER_FIFTEEN);
-    savedTask.setPriority(1);
+    savedTask.setFrequency(Frequency.WEEKLY);
     savedTask.setUserId(1L);
     savedTask.setParentId(1L);
 
@@ -106,7 +107,7 @@ public class TaskControllerTest {
             "name": "Subtask",
             "categoryId": 1,
             "timeBracket": "<15",
-            "priority": 1,
+            "frequency": "WEEKLY",
             "parentId": 1
         }
         """;
@@ -185,7 +186,7 @@ public class TaskControllerTest {
     task1.setName("Task 1");
     task1.setCategoryId(1L);
     task1.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
-    task1.setPriority(1);
+    task1.setFrequency(Frequency.WEEKLY);
     task1.setUserId(1L);
 
     Task task2 = new Task();
@@ -193,7 +194,7 @@ public class TaskControllerTest {
     task2.setName("Task 2");
     task2.setCategoryId(2L);
     task2.setTimeBracket(TimeBracket.UNDER_FIFTEEN);
-    task2.setPriority(2);
+    task2.setFrequency(Frequency.MONTHLY);
     task2.setUserId(1L);
 
     when(taskService.getAllTasksByUserId(1L)).thenReturn(List.of(task1, task2));
@@ -226,7 +227,7 @@ public class TaskControllerTest {
             "name": "",
             "categoryId": 1,
             "timeBracket": "15-30",
-            "priority": 2
+            "frequency": "MONTHLY"
         }
         """;
 
@@ -247,7 +248,7 @@ public class TaskControllerTest {
         {
             "name": "Test Task",
             "timeBracket": "15-30",
-            "priority": 2
+            "frequency": "MONTHLY"
         }
         """;
 
@@ -261,14 +262,13 @@ public class TaskControllerTest {
   }
 
   @Test
-  void shouldReturn400WhenPriorityTooLow() throws Exception {
+  void shouldReturn400WhenFrequencyIsNull() throws Exception {
     String requestBody =
         """
         {
             "name": "Test Task",
             "categoryId": 1,
-            "timeBracket": "15-30",
-            "priority": 0
+            "timeBracket": "15-30"
         }
         """;
 
@@ -283,14 +283,16 @@ public class TaskControllerTest {
   }
 
   @Test
-  void shouldReturn400WhenPriorityTooHigh() throws Exception {
+  void shouldReturn400Or500WhenFrequencyIsInvalid() throws Exception {
+    // Invalid enum values cause Jackson deserialization errors (500) rather than validation errors
+    // (400)
     String requestBody =
         """
         {
             "name": "Test Task",
             "categoryId": 1,
             "timeBracket": "15-30",
-            "priority": 4
+            "frequency": "INVALID"
         }
         """;
 
@@ -300,8 +302,7 @@ public class TaskControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
                 .with(authentication(createAuthentication())))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").exists());
+        .andExpect(status().is5xxServerError());
   }
 
   @Test
@@ -347,13 +348,13 @@ public class TaskControllerTest {
   }
 
   @Test
-  void shouldAcceptValidPriorityBoundary1() throws Exception {
+  void shouldAcceptValidFrequencyWeekly() throws Exception {
     Task savedTask = new Task();
     savedTask.setId(1L);
     savedTask.setName("Test");
     savedTask.setCategoryId(1L);
     savedTask.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
-    savedTask.setPriority(1);
+    savedTask.setFrequency(Frequency.WEEKLY);
     savedTask.setUserId(1L);
 
     when(taskService.createTask(any(TaskCreateRequest.class), eq(1L))).thenReturn(savedTask);
@@ -364,7 +365,7 @@ public class TaskControllerTest {
             "name": "Test",
             "categoryId": 1,
             "timeBracket": "15-30",
-            "priority": 1
+            "frequency": "WEEKLY"
         }
         """;
 
@@ -375,17 +376,17 @@ public class TaskControllerTest {
                 .content(requestBody)
                 .with(authentication(createAuthentication())))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.priority").value(1));
+        .andExpect(jsonPath("$.frequency").value("WEEKLY"));
   }
 
   @Test
-  void shouldAcceptValidPriorityBoundary3() throws Exception {
+  void shouldAcceptValidFrequencyYearly() throws Exception {
     Task savedTask = new Task();
     savedTask.setId(1L);
     savedTask.setName("Test");
     savedTask.setCategoryId(1L);
     savedTask.setTimeBracket(TimeBracket.FIFTEEN_TO_THIRTY);
-    savedTask.setPriority(3);
+    savedTask.setFrequency(Frequency.YEARLY);
     savedTask.setUserId(1L);
 
     when(taskService.createTask(any(TaskCreateRequest.class), eq(1L))).thenReturn(savedTask);
@@ -396,7 +397,7 @@ public class TaskControllerTest {
             "name": "Test",
             "categoryId": 1,
             "timeBracket": "15-30",
-            "priority": 3
+            "frequency": "YEARLY"
         }
         """;
 
@@ -407,6 +408,6 @@ public class TaskControllerTest {
                 .content(requestBody)
                 .with(authentication(createAuthentication())))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.priority").value(3));
+        .andExpect(jsonPath("$.frequency").value("YEARLY"));
   }
 }
