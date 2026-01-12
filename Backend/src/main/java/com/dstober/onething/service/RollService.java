@@ -27,15 +27,22 @@ public class RollService {
 
   public Task determineTaskForUser(Long userId, RollRequest rollRequest) {
     List<Task> tasks;
-    //    if(rollRequest.rollTemperature().priorityToRandomness() <= 0.05 && rollRequest.category()
-    // == null){
-    //      tasks = taskRepository.findByUserIdAndTimeBracketAndPriority(userId,
-    // rollRequest.timeBracket(), rollRequest., );
-    //    }
-    if (rollRequest.category() == null) { // all categories
-      tasks = taskRepository.findByUserIdAndTimeBracket(userId, rollRequest.timeBracket());
+    if (rollRequest.rollTemperature().priorityToRandomness() <= 0.05
+        && rollRequest.categoryId() == null) {
+      return taskRepository
+          .findFirstByUserIdAndTimeBracketOrderByPriorityAsc(userId, rollRequest.timeBracket())
+          .orElseThrow();
+    } else if (rollRequest.rollTemperature().priorityToRandomness() <= 0.05) {
+      return taskRepository
+          .findFirstByUserIdAndTimeBracketAndCategoryIdOrderByPriorityAsc(
+              userId, rollRequest.timeBracket(), rollRequest.categoryId())
+          .orElseThrow();
+    } else if (rollRequest.categoryId() != null) {
+      tasks =
+          taskRepository.findByUserIdAndTimeBracketAndCategoryId(
+              userId, rollRequest.timeBracket(), rollRequest.categoryId());
     } else {
-      tasks = taskRepository.findByUserId(userId);
+      tasks = taskRepository.findByUserIdAndTimeBracket(userId, rollRequest.timeBracket());
     }
 
     if (tasks.isEmpty()) {
