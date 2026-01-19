@@ -32,7 +32,7 @@ public class TaskController {
   }
 
   @PostMapping
-  public ResponseEntity<Task> createTask(
+  public ResponseEntity<Task> createTask( // todo:better validation error response, for bad data
       @Valid @RequestBody TaskCreateRequest request, Authentication authentication) {
     UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
     Task created = taskService.createTask(request, principal.getId());
@@ -55,23 +55,14 @@ public class TaskController {
   }
 
   // todo:auth at top keyword?
-  @GetMapping("/roll")
+  @PostMapping("/roll")
   public ResponseEntity<Task> determineTaskForUser(
-      Authentication authentication, @Valid RollRequest rollRequest) {
+      Authentication authentication, @Valid @RequestBody RollRequest rollRequest) {
     UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
     Task task = rollService.determineTaskForUser(principal.getId(), rollRequest);
     return ResponseEntity.ok(task);
   }
 
-  //    @PutMapping("/{id}")
-  //    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
-  //        Task updated = taskService.updateTask(id, task);
-  //        return ResponseEntity.ok(updated);
-  //    }
-
-  //    @DeleteMapping("/{id}")
-  //    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-  //        taskService.deleteTask(id);
-  //        return ResponseEntity.noContent().build();
-  //    }
+  // todo: put mapping
+  // todo: delete mapping
 }

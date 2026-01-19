@@ -42,7 +42,7 @@ public class TaskService {
   }
 
   public List<Task> getAllTasksByUserId(Long userId) {
-    return taskRepository.findByUserId(userId);
+    return taskRepository.findByUserIdOrderByPriorityDesc(userId);
   }
 
   public Task updateTask(Long id, Task taskDetails, Long userId) {
@@ -55,7 +55,6 @@ public class TaskService {
     existingTask.setLastCompleted(taskDetails.getLastCompleted());
     existingTask.setPrevCompleted(taskDetails.getPrevCompleted());
     existingTask.setParentId(taskDetails.getParentId());
-    // priority is not updated directly - it's recalculated on login
 
     return taskRepository.save(existingTask);
   }

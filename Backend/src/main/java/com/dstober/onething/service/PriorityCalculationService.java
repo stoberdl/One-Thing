@@ -17,7 +17,7 @@ public class PriorityCalculationService {
   }
 
   public void recalculatePrioritiesForUser(Long userId) {
-    List<Task> tasks = taskRepository.findByUserId(userId);
+    List<Task> tasks = taskRepository.findByUserIdOrderByPriorityDesc(userId);
     Instant now = Instant.now();
 
     for (Task task : tasks) {

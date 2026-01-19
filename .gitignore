@@ -44,5 +44,5 @@ nul
 .env
 Docs/stuff.md
 Docs/FrontendSetupGuide/
-Docs/roll-priority-randomness-brainstorm.md
+Docs/roll-priority-chart-example.md
 docker-compose.yml

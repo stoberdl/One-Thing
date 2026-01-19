@@ -36,7 +36,7 @@ class PriorityCalculationServiceTest {
     task.setFrequency(Frequency.WEEKLY);
     task.setLastCompleted(Instant.now()); // Just completed
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -51,7 +51,7 @@ class PriorityCalculationServiceTest {
     task.setFrequency(Frequency.WEEKLY);
     task.setLastCompleted(Instant.now().minus(7, ChronoUnit.DAYS)); // 1 week ago
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -66,7 +66,7 @@ class PriorityCalculationServiceTest {
     task.setFrequency(Frequency.WEEKLY);
     task.setLastCompleted(Instant.now().minus(14, ChronoUnit.DAYS)); // 2 weeks ago
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -81,7 +81,7 @@ class PriorityCalculationServiceTest {
     task.setFrequency(Frequency.MONTHLY);
     task.setLastCompleted(Instant.now().minus(30, ChronoUnit.DAYS)); // 1 month ago
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -96,7 +96,7 @@ class PriorityCalculationServiceTest {
     task.setFrequency(Frequency.WEEKLY);
     task.setLastCompleted(Instant.now().minus(100, ChronoUnit.DAYS)); // Way overdue
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -112,7 +112,7 @@ class PriorityCalculationServiceTest {
     task.setLastCompleted(null);
     task.setCreatedAt(Instant.now().minus(7, ChronoUnit.DAYS)); // Created 1 week ago
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -131,7 +131,7 @@ class PriorityCalculationServiceTest {
     task2.setFrequency(Frequency.MONTHLY);
     task2.setLastCompleted(Instant.now().minus(60, ChronoUnit.DAYS));
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task1, task2));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task1, task2));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -148,7 +148,7 @@ class PriorityCalculationServiceTest {
   void recalculatePrioritiesForUser_EmptyTaskList_NoSaveNeeded() {
     Long userId = 1L;
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of());
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of());
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 
@@ -162,7 +162,7 @@ class PriorityCalculationServiceTest {
     task.setFrequency(Frequency.QUARTERLY); // 90 days
     task.setLastCompleted(Instant.now().minus(45, ChronoUnit.DAYS)); // Halfway
 
-    when(taskRepository.findByUserId(userId)).thenReturn(List.of(task));
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(List.of(task));
 
     priorityCalculationService.recalculatePrioritiesForUser(userId);
 

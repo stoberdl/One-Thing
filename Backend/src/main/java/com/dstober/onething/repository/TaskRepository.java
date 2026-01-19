@@ -8,16 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-  List<Task> findByUserId(Long userId);
+  List<Task> findByUserIdOrderByPriorityDesc(Long userId);
 
-  List<Task> findByUserIdAndTimeBracket(Long userId, TimeBracket timeBracket);
+  List<Task> findByUserIdAndTimeBracketOrderByPriorityDesc(Long userId, TimeBracket timeBracket);
 
-  List<Task> findByUserIdAndTimeBracketAndCategoryId(
+  List<Task> findByUserIdAndTimeBracketAndCategoryIdOrderByPriorityDesc(
       Long userId, TimeBracket timeBracket, Long categoryId);
 
-  Optional<Task> findFirstByUserIdAndTimeBracketOrderByPriorityAsc(
+  Optional<Task> findFirstByUserIdAndTimeBracketOrderByPriorityDesc(
       Long userId, TimeBracket timeBracket);
 
-  Optional<Task> findFirstByUserIdAndTimeBracketAndCategoryIdOrderByPriorityAsc(
+  Optional<Task> findFirstByUserIdAndTimeBracketAndCategoryIdOrderByPriorityDesc(
       Long userId, TimeBracket timeBracket, Long categoryId);
 }

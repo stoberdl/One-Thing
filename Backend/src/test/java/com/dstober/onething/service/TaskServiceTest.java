@@ -147,7 +147,7 @@ class TaskServiceTest {
     Task task2 = TestDataFactory.createTask(2L, "Task 2", userId);
     List<Task> tasks = List.of(task1, task2);
 
-    when(taskRepository.findByUserId(userId)).thenReturn(tasks);
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId)).thenReturn(tasks);
 
     List<Task> result = taskService.getAllTasksByUserId(userId);
 
@@ -159,7 +159,8 @@ class TaskServiceTest {
   void getAllTasksByUserId_Empty() {
     Long userId = 1L;
 
-    when(taskRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
+    when(taskRepository.findByUserIdOrderByPriorityDesc(userId))
+        .thenReturn(Collections.emptyList());
 
     List<Task> result = taskService.getAllTasksByUserId(userId);
 
