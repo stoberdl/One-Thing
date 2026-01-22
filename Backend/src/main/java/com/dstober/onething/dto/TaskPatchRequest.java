@@ -2,37 +2,19 @@ package com.dstober.onething.dto;
 
 import com.dstober.onething.model.Frequency;
 import com.dstober.onething.model.TimeBracket;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class TaskCreateRequest {
+public class TaskPatchRequest {
 
-  @NotBlank(message = "Task name is required")
-  @Size(max = 255, message = "Task name must be 255 characters or less")
+  @Size(min = 1, max = 255, message = "Task name must be between 1 and 255 characters")
   private String name;
 
-  @NotNull(message = "Category ID is required")
   private Long categoryId;
-
-  @NotNull(message = "Time bracket is required")
   private TimeBracket timeBracket;
-
-  @NotNull(message = "Frequency is required")
   private Frequency frequency;
-
   private Long parentId;
 
-  public TaskCreateRequest() {}
-
-  public TaskCreateRequest(
-      String name, Long categoryId, TimeBracket timeBracket, Frequency frequency, Long parentId) {
-    this.name = name;
-    this.categoryId = categoryId;
-    this.timeBracket = timeBracket;
-    this.frequency = frequency;
-    this.parentId = parentId;
-  }
+  public TaskPatchRequest() {}
 
   public String getName() {
     return name;

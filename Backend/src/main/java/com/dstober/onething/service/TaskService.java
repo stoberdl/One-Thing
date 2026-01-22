@@ -1,6 +1,7 @@
 package com.dstober.onething.service;
 
 import com.dstober.onething.dto.TaskCreateRequest;
+import com.dstober.onething.dto.TaskPatchRequest;
 import com.dstober.onething.exception.ResourceNotFoundException;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.repository.TaskRepository;
@@ -45,6 +46,7 @@ public class TaskService {
     return taskRepository.findByUserIdOrderByPriorityDesc(userId);
   }
 
+  // todo:look into why this was added for tests only
   public Task updateTask(Long id, Task taskDetails, Long userId) {
     Task existingTask = getTaskByIdAndUserId(id, userId);
 
@@ -62,5 +64,27 @@ public class TaskService {
   public void deleteTask(Long id, Long userId) {
     Task task = getTaskByIdAndUserId(id, userId);
     taskRepository.delete(task);
+  }
+
+  public Task patchTask(Long taskId, TaskPatchRequest request, Long userId) {
+    Task task = getTaskByIdAndUserId(taskId, userId);
+
+    if (request.getName() != null) {
+      task.setName(request.getName());
+    }
+    if (request.getCategoryId() != null) {
+      task.setCategoryId(request.getCategoryId());
+    }
+    if (request.getTimeBracket() != null) {
+      task.setTimeBracket(request.getTimeBracket());
+    }
+    if (request.getFrequency() != null) {
+      task.setFrequency(request.getFrequency());
+    }
+    if (request.getParentId() != null) {
+      task.setParentId(request.getParentId());
+    }
+
+    return taskRepository.save(task);
   }
 }

@@ -3,6 +3,7 @@ package com.dstober.onething.controller;
 import com.dstober.onething.dto.CategoryCreateRequest;
 import com.dstober.onething.dto.RollRequest;
 import com.dstober.onething.dto.TaskCreateRequest;
+import com.dstober.onething.dto.TaskPatchRequest;
 import com.dstober.onething.model.Category;
 import com.dstober.onething.model.Task;
 import com.dstober.onething.security.UserPrincipal;
@@ -63,6 +64,21 @@ public class TaskController {
     return ResponseEntity.ok(task);
   }
 
-  // todo: put mapping
-  // todo: delete mapping
+  @DeleteMapping("/{taskId}")
+  public ResponseEntity<Void> deleteTask(
+      @PathVariable("taskId") Long taskId, Authentication authentication) {
+    UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+    taskService.deleteTask(taskId, principal.getId());
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @PatchMapping("/{taskId}")
+  public ResponseEntity<Task> putTask(
+      @PathVariable Long taskId,
+      @Valid @RequestBody TaskPatchRequest request,
+      Authentication authentication) {
+    UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+    Task created = taskService.patchTask(taskId, request, principal.getId());
+    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+  }
 }
