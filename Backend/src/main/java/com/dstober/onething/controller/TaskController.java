@@ -73,7 +73,7 @@ public class TaskController {
   }
 
   @PatchMapping("/{taskId}")
-  public ResponseEntity<Task> putTask(
+  public ResponseEntity<Task> patchTask(
       @PathVariable Long taskId,
       @Valid @RequestBody TaskPatchRequest request,
       Authentication authentication) {
